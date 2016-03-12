@@ -17,7 +17,10 @@
       /* eslint no-var:0 vars-on-top:0 */
       /* eslint-env node:false es6:false */
       /* global createjs */
-      var canvas, queue, stage, loaderBar;
+      var canvas, queue, stage, loaderBar, bgRect;
+      var bgs, bg1, bg2;
+
+      var interactionEnabled = false;
 
       var barWidth = 500;
       var barHeight = 40;
@@ -28,7 +31,7 @@
         'fg.png',
         'title.png',
         'flyover-edit.ogg',
-        'lights-flicker-on.wav'
+        'flicker.wav'
       ];
 
       window.init = function() {
@@ -37,6 +40,11 @@
         stage = new createjs.Stage(canvas);
         stage.enableMouseOver(10);
         createjs.Touch.enable(stage);
+
+        bgRect = new createjs.Shape();
+        bgRect.graphics.beginFill("#000");
+        bgRect.graphics.drawRect(0, 0, canvas.width, canvas.height);
+        stage.addChild(bgRect);
 
         loaderBar = new createjs.Shape();
         loaderBar.graphics.setStrokeStyle(1);
@@ -77,16 +85,88 @@
       }
 
       function startSplash() {
-        stage.removeChild(loaderBar);
-        // console.log('done!');
+        bg1 = new createjs.Bitmap(queue.getResult('bg1.png'));
+        bg2 = new createjs.Bitmap(queue.getResult('bg2.png'));
+        bgs = new createjs.Container();
+        bgs.addChild(bg2);
+        bgs.addChild(bg1);
+
+        var fg = new createjs.Bitmap(queue.getResult('fg.png'));
+
+        var title = new createjs.Bitmap(queue.getResult('title.png'));
+        title.regX = title.image.width / 2;
+        title.regY = title.image.height / 2;
+        title.x = canvas.width / 2;
+        title.y = canvas.height / 2;
+        title.alpha = 0;
+
+        stage.addChildAt(title, 0);
+        stage.addChildAt(fg, 0);
+        stage.addChildAt(bgs, 0);
+
+        createjs.Tween
+          .get(loaderBar)
+          .to({alpha:0, visible:false}, 1000)
+          .call(function() {
+            stage.removeChild(loaderBar);
+
+            interactionEnabled = true;
+            var ambientSound = createjs.Sound.play('flyover-edit.ogg', { volume: 0, loop: -1 });
+            createjs.Tween
+              .get(ambientSound)
+              .to({volume:1}, 1500);
+
+            //Fade the full-screen rect.
+            createjs.Tween
+              .get(bgRect)
+              .to({alpha:0, visible:false}, 2000)
+              .call(function() { doFlicker(); });
+
+            createjs.Tween
+              .get(title)
+              .wait(5000)
+              .to({alpha:1}, 2000);
+          });
+
       }
 
       function tick(event) {
         // var time = createjs.Ticker.getTime();
 
+        if(interactionEnabled) {
+
+        }
+
         stage.update(event);
       }
 
+      function doFlicker() {
+        var flickerSound = createjs.Sound.play('flicker.wav', { volume: 0 });
+
+        createjs.Tween
+          .get(flickerSound)
+          .to({volume:1}, 500);
+
+        createjs.Tween
+          .get(bgs)
+          .wait(1600)
+          .call(function() { bgs.swapChildren(bg1, bg2); })
+          .wait(100)
+          .call(function() { bgs.swapChildren(bg1, bg2); })
+          .wait(300)
+          .call(function() { bgs.swapChildren(bg1, bg2); })
+          .wait(100)
+          .call(function() { bgs.swapChildren(bg1, bg2); })
+          .wait(50)
+          .call(function() { bgs.swapChildren(bg1, bg2); })
+          .wait(100)
+          .call(function() { bgs.swapChildren(bg1, bg2); })
+          .wait(100)
+          .call(function() { bgs.swapChildren(bg1, bg2); });
+
+        setTimeout(function() { bgs.swapChildren(bg1, bg2); }, 14300);
+        setTimeout(doFlicker, flickerSound.duration + 8000);
+      }
     </script>
     <img
     style="display: none;"
