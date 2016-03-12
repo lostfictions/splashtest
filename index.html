@@ -1,0 +1,97 @@
+<!doctype html>
+<html class="no-js" lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>THE SEERS CATALOGUE</title>
+    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+    <script src="https://cdn.rawgit.com/josephg/noisejs/master/perlin.js"></script>
+    <style>
+      body {
+        background-color: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      /* eslint no-var:0 vars-on-top:0 */
+      /* eslint-env node:false es6:false */
+      /* global createjs */
+      var canvas, queue, stage, loaderBar;
+
+      var barWidth = 500;
+      var barHeight = 40;
+
+      var toLoad = [
+        'bg1.png',
+        'bg2.png',
+        'fg.png',
+        'title.png',
+        'flyover-edit.ogg',
+        'lights-flicker-on.wav'
+      ];
+
+      window.init = function() {
+        canvas = document.querySelector('#splash');
+
+        stage = new createjs.Stage(canvas);
+        stage.enableMouseOver(10);
+        createjs.Touch.enable(stage);
+
+        loaderBar = new createjs.Shape();
+        loaderBar.graphics.setStrokeStyle(1);
+        loaderBar.graphics.beginStroke("#000");
+        loaderBar.graphics.drawRect(0, 0, barWidth, barHeight);
+        loaderBar.regX = barWidth / 2;
+        loaderBar.regY = barHeight / 2;
+        loaderBar.x = canvas.width / 2;
+        loaderBar.y = canvas.height / 2;
+        stage.addChild(loaderBar);
+
+        createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
+        createjs.Ticker.setFPS(60);
+        createjs.Ticker.on("tick", tick);
+
+        queue = new createjs.LoadQueue();
+        queue.installPlugin(createjs.Sound);
+        queue.on('complete', startSplash, this);
+        queue.on('progress', updateBar, this);
+        queue.loadManifest(toLoad);
+      };
+
+      function updateBar(e) {
+        var g = loaderBar.graphics;
+
+        g.clear();
+
+        g
+          .beginFill('#ff7373')
+          .drawRect(0, 0, barWidth * e.loaded, 40)
+          .endFill();
+
+        g.
+          setStrokeStyle(1)
+          .beginStroke("#000")
+          .drawRect(0, 0, barWidth, 40)
+          .endStroke();
+      }
+
+      function startSplash() {
+        stage.removeChild(loaderBar);
+        // console.log('done!');
+      }
+
+      function tick(event) {
+        // var time = createjs.Ticker.getTime();
+
+        stage.update(event);
+      }
+
+    </script>
+    <img
+    style="display: none;"
+      src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
+      onload="init();">
+    <canvas id="splash" width="800" height="600"></canvas>
+  </body>
+</html>
