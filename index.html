@@ -27,12 +27,11 @@
       /* eslint-env node:false es6:false */
       /* global createjs */
       var canvas, queue, stage, loaderBar, bgRect;
-      var bgs, bg1, bg2;
+      var bgs, bg1, bg2, fg;
 
       var interactionEnabled = false;
 
-      var parallaxFactor = 0.9;
-      var parallaxPadding = 0.1;
+      var parallaxFactor = 0.7;
 
       var barWidth = 500;
       var barHeight = 40;
@@ -51,7 +50,6 @@
         canvas = document.querySelector('#splash');
 
         stage = new createjs.Stage(canvas);
-        // stage.enableMouseOver(10);
         stage.mouseMoveOutside = true;
         createjs.Touch.enable(stage);
         stage.on('stagemousemove', handleMouseMove);
@@ -103,37 +101,24 @@
         if(!interactionEnabled) {
           return;
         }
+        var w = canvas.width;
+        var h = canvas.height;
 
-        console.log(e.stageX + ' ' + e.rawX);
+        bgs.x = w / 2 + (parallaxFactor * lerp(-50, 50, clamp01(e.rawX / w)));
+        bgs.y = h / 2 + (parallaxFactor * lerp(-50, 50, clamp01(e.rawY / h)));
 
-        var xd = bg1.image.width;
-        var yd = bg1.image.height;
-
-        /*
-        var mp = Input.mousePosition;
-        var pos = new Vector2(mp.x / Screen.width, mp.y / Screen.height);
-
-        var fgPos = new Vector2(
-            Mathf.Lerp(sd.x, -sd.x, pos.x),
-            Mathf.Lerp(sd.y, -sd.y, pos.y));
-
-        fgRect.anchoredPosition = fgPos;
-        bgRect.anchoredPosition = fgPos * parallaxFactor;
-        */
+        fg.x = w / 2 + (lerp(-50, 50, clamp01(e.rawX / w)));
+        fg.y = h / 2 + (lerp(-50, 50, clamp01(e.rawY / h)));
       }
 
       function startSplash() {
         bg1 = new createjs.Bitmap(queue.getResult('bg1.png'));
         bg1.regX = bg1.image.width / 2;
         bg1.regY = bg1.image.height / 2;
-        // bg1.x = canvas.width / 2;
-        // bg1.y = canvas.height / 2;
 
         bg2 = new createjs.Bitmap(queue.getResult('bg2.png'));
         bg2.regX = bg2.image.width / 2;
         bg2.regY = bg2.image.height / 2;
-        // bg2.x = canvas.width / 2;
-        // bg2.y = canvas.height / 2;
 
         bgs = new createjs.Container();
         bgs.x = canvas.width / 2;
@@ -141,7 +126,7 @@
         bgs.addChild(bg2);
         bgs.addChild(bg1);
 
-        var fg = new createjs.Bitmap(queue.getResult('fg.png'));
+        fg = new createjs.Bitmap(queue.getResult('fg.png'));
         fg.regX = fg.image.width / 2;
         fg.regY = fg.image.height / 2;
         fg.x = canvas.width / 2;
@@ -223,6 +208,18 @@
         setTimeout(function() { bgs.swapChildren(bg1, bg2); }, 14300);
         setTimeout(doFlicker, flickerSound.duration + 8000);
       }
+
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      function clamp01(v) {
+        if(v < 0) return 0;
+        if(v > 1) return 1;
+        return v;
+      }
+
+
     </script>
     <img
     style="display: none;"
