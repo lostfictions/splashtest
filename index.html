@@ -31,6 +31,9 @@
 
       var interactionEnabled = false;
 
+      var parallaxFactor = 0.9;
+      var parallaxPadding = 0.1;
+
       var barWidth = 500;
       var barHeight = 40;
 
@@ -48,7 +51,7 @@
         canvas = document.querySelector('#splash');
 
         stage = new createjs.Stage(canvas);
-        stage.enableMouseOver(10);
+        // stage.enableMouseOver(10);
         stage.mouseMoveOutside = true;
         createjs.Touch.enable(stage);
         stage.on('stagemousemove', handleMouseMove);
@@ -103,6 +106,9 @@
 
         console.log(e.stageX + ' ' + e.rawX);
 
+        var xd = bg1.image.width;
+        var yd = bg1.image.height;
+
         /*
         var mp = Input.mousePosition;
         var pos = new Vector2(mp.x / Screen.width, mp.y / Screen.height);
@@ -118,12 +124,28 @@
 
       function startSplash() {
         bg1 = new createjs.Bitmap(queue.getResult('bg1.png'));
+        bg1.regX = bg1.image.width / 2;
+        bg1.regY = bg1.image.height / 2;
+        // bg1.x = canvas.width / 2;
+        // bg1.y = canvas.height / 2;
+
         bg2 = new createjs.Bitmap(queue.getResult('bg2.png'));
+        bg2.regX = bg2.image.width / 2;
+        bg2.regY = bg2.image.height / 2;
+        // bg2.x = canvas.width / 2;
+        // bg2.y = canvas.height / 2;
+
         bgs = new createjs.Container();
+        bgs.x = canvas.width / 2;
+        bgs.y = canvas.height / 2;
         bgs.addChild(bg2);
         bgs.addChild(bg1);
 
         var fg = new createjs.Bitmap(queue.getResult('fg.png'));
+        fg.regX = fg.image.width / 2;
+        fg.regY = fg.image.height / 2;
+        fg.x = canvas.width / 2;
+        fg.y = canvas.height / 2;
 
         var title = new createjs.Bitmap(queue.getResult('title.png'));
         title.regX = title.image.width / 2;
@@ -208,7 +230,7 @@
       onload="init();">
     <div class="parent">
       <div class="aligned">
-        <canvas id="splash" width="800" height="600"></canvas>
+        <canvas id="splash" width="800" height="500"></canvas>
       </div>
     </div>
   </body>
