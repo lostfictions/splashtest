@@ -5,10 +5,19 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>THE SEERS CATALOGUE</title>
     <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
-    <script src="https://cdn.rawgit.com/josephg/noisejs/master/perlin.js"></script>
     <style>
       body {
         background-color: #000;
+        margin: 0;
+        padding: 0;
+      }
+      .parent {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     </style>
   </head>
@@ -31,6 +40,7 @@
         'fg.png',
         'title.png',
         'flyover-edit.ogg',
+        'seers-theme.ogg',
         'flicker.wav'
       ];
 
@@ -39,7 +49,9 @@
 
         stage = new createjs.Stage(canvas);
         stage.enableMouseOver(10);
+        stage.mouseMoveOutside = true;
         createjs.Touch.enable(stage);
+        stage.on('stagemousemove', handleMouseMove);
 
         bgRect = new createjs.Shape();
         bgRect.graphics.beginFill("#000");
@@ -84,6 +96,26 @@
           .endStroke();
       }
 
+      function handleMouseMove(e) {
+        if(!interactionEnabled) {
+          return;
+        }
+
+        console.log(e.stageX + ' ' + e.rawX);
+
+        /*
+        var mp = Input.mousePosition;
+        var pos = new Vector2(mp.x / Screen.width, mp.y / Screen.height);
+
+        var fgPos = new Vector2(
+            Mathf.Lerp(sd.x, -sd.x, pos.x),
+            Mathf.Lerp(sd.y, -sd.y, pos.y));
+
+        fgRect.anchoredPosition = fgPos;
+        bgRect.anchoredPosition = fgPos * parallaxFactor;
+        */
+      }
+
       function startSplash() {
         bg1 = new createjs.Bitmap(queue.getResult('bg1.png'));
         bg2 = new createjs.Bitmap(queue.getResult('bg2.png'));
@@ -122,21 +154,23 @@
               .to({alpha:0, visible:false}, 2000)
               .call(function() { doFlicker(); });
 
+            //Fade in title.
             createjs.Tween
               .get(title)
-              .wait(5000)
+              .wait(6000)
               .to({alpha:1}, 2000);
+
+            //Fade in music.
+            var music = createjs.Sound.play('seers-theme.ogg', { volume: 0, delay: 15000 });
+            createjs.Tween
+              .get(music)
+              .wait(17000)
+              .to({volume:0.5}, 3000);
           });
 
       }
 
       function tick(event) {
-        // var time = createjs.Ticker.getTime();
-
-        if(interactionEnabled) {
-
-        }
-
         stage.update(event);
       }
 
@@ -172,6 +206,10 @@
     style="display: none;"
       src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="
       onload="init();">
-    <canvas id="splash" width="800" height="600"></canvas>
+    <div class="parent">
+      <div class="aligned">
+        <canvas id="splash" width="800" height="600"></canvas>
+      </div>
+    </div>
   </body>
 </html>
