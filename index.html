@@ -37,13 +37,13 @@
       var barHeight = 40;
 
       var toLoad = [
+        'flyover-edit.ogg',
+        'seers-theme.ogg',
+        'flicker.ogg',
         'bg1.png',
         'bg2.png',
         'fg.png',
-        'title.png',
-        'flyover-edit.ogg',
-        'seers-theme.ogg',
-        'flicker.wav'
+        'title.png'
       ];
 
       window.init = function() {
@@ -171,6 +171,7 @@
             var music = createjs.Sound.play('seers-theme.ogg', { volume: 0, delay: 15000 });
             createjs.Tween
               .get(music)
+              .to({volume:0})
               .wait(17000)
               .to({volume:0.5}, 3000);
           });
@@ -182,7 +183,7 @@
       }
 
       function doFlicker() {
-        var flickerSound = createjs.Sound.play('flicker.wav', { volume: 0 });
+        var flickerSound = createjs.Sound.play('flicker.ogg', { volume: 0 });
 
         createjs.Tween
           .get(flickerSound)
@@ -214,8 +215,8 @@
       }
 
       function clamp01(v) {
-        if(v < 0) return 0;
-        if(v > 1) return 1;
+        if(v < 0) { return 0; }
+        if(v > 1) { return 1; }
         return v;
       }
 
